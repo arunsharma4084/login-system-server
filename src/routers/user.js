@@ -13,7 +13,7 @@ router.post('/users', cors(), async (req, res) => {
 
     try{ 
         await user.save()
-        sendWelcomeEmail(user.email, user.username)
+        sendWelcomeEmail(user.email, user.name)
         const token = await user.generateAuthToken()
         res.status(201).send({user, token})
     } catch (error) {
@@ -32,7 +32,6 @@ router.post('/users/login', async (req, res) => {
 })
 
 router.post('/users/logout', auth, async (req, res) => {
-    console.log(req)
     try {
         req.user.tokens = req.user.tokens.filter((token) => {
             return token.token !== req.token
@@ -60,7 +59,7 @@ router.get('/users/me', auth, async (req, res) => {
 })
 
 router.patch('/users/me', auth, async (req, res) => {
-    const allowedUpdates = ['username', 'email', 'password']
+    const allowedUpdates = ['name', 'email', 'password']
     const updates = Object.keys(req.body)
     const isValidOperation = updates.every((item) => allowedUpdates.includes(item))
 
@@ -83,7 +82,7 @@ router.patch('/users/me', auth, async (req, res) => {
 router.delete('/users/me', auth, async (req, res) => {
     try{
         await req.user.deleteOne()
-        sendCancellationEmail(req.user.email, req.user.username)
+        sendCancellationEmail(req.user.email, req.user.name)
         res.send(req.user)
     } catch(error) {
         res.status(500).send(error)
@@ -93,7 +92,7 @@ router.delete('/users/me', auth, async (req, res) => {
 const upload = multer({
     // dest: 'avatars',
     limits: {
-        fileSize: 4096000
+        fileSize: 1024000
     },
     fileFilter(req, file, cb){
         if(!file.originalname.match(/\.(jpg|jpeg|png)$/)){
