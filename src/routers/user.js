@@ -13,7 +13,7 @@ router.post('/users', cors(), async (req, res) => {
 
     try{ 
         await user.save()
-        sendWelcomeEmail(user.email, user.name)
+        sendWelcomeEmail(user.email, user.username)
         const token = await user.generateAuthToken()
         res.status(201).send({user, token})
     } catch (error) {
@@ -59,7 +59,7 @@ router.get('/users/me', auth, async (req, res) => {
 })
 
 router.patch('/users/me', auth, async (req, res) => {
-    const allowedUpdates = ['name', 'email', 'password']
+    const allowedUpdates = ['username', 'email', 'password']
     const updates = Object.keys(req.body)
     const isValidOperation = updates.every((item) => allowedUpdates.includes(item))
 
@@ -82,7 +82,7 @@ router.patch('/users/me', auth, async (req, res) => {
 router.delete('/users/me', auth, async (req, res) => {
     try{
         await req.user.deleteOne()
-        sendCancellationEmail(req.user.email, req.user.name)
+        sendCancellationEmail(req.user.email, req.user.username)
         res.send(req.user)
     } catch(error) {
         res.status(500).send(error)
